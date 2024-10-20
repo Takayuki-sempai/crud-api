@@ -1,0 +1,32 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "This repository for crud-api project",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Takayuki-sempai/file-manager.git"
+  },
+  "keywords": [
+    "nodejs",
+    "crudapi",
+    "Takayuki-sempai"
+  ],
+  "author": "Takayuki-sempai",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Takayuki-sempai/crud-api/issues"
+  },
+  "homepage": "https://github.com/Takayuki-sempai/crud-api#readme",
+  "dependencies": {
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
