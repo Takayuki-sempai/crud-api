@@ -1,9 +1,11 @@
 import {Server} from "./src/server/server.ts";
 import {ensureNumber} from "./src/util/utils.js";
 import {UsersController} from "./src/controller/users.js";
+import {UsersDatabase} from "./src/database/database.js";
 
 const server = Server()
-const controller = UsersController()
+const database = UsersDatabase()
+const controller = UsersController(database)
 const port = ensureNumber(process.env.PORT) || 3000;
 
 server.get("/api/users", controller.getAllUsers)

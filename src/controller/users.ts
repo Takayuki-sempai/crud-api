@@ -1,14 +1,13 @@
 import {HandlerResponse, HttpResponseCode, PostHandler, UrlHandler} from "../server/types.js";
 import {toUserMode} from "../model/users.js";
-import {User} from "../model/types.js";
 import {InternalError, NotFoundError, RequestParseError} from "../error/errors.js";
 import {createOkResponse, createResponse} from "../server/response.js";
 import {validate} from "uuid";
+import {UserDatabase} from "../database/types.js";
 
-const users: User[] = []
-
-export const UsersController = () => {
+export const UsersController = (db: UserDatabase) => {
     const getAllUsers: UrlHandler = async (_: Map<string, string>): Promise<HandlerResponse> => {
+        const users = db.getAllUsers()
         return createOkResponse(users)
     }
 
@@ -20,7 +19,7 @@ export const UsersController = () => {
         if (!validate(userId)) {
             throw new RequestParseError("UserId id not uuid type")
         }
-        const foundUser = users.find(user => user.id === userId)
+        const foundUser = db.findUser(userId)
         if (!foundUser) {
             throw new NotFoundError(`User with id: ${userId} not found`)
         }
@@ -29,7 +28,7 @@ export const UsersController = () => {
 
     const addUser: PostHandler = async (body: object): Promise<HandlerResponse> => {
         const newUser = toUserMode(body)
-        users.push(newUser)
+        db.addUser(newUser)
         return createResponse(newUser, HttpResponseCode.CREATED)
     }
 
