@@ -23,19 +23,10 @@ const getBody = (request: IncomingMessage): Promise<object> => {
     });
 }
 
-const handleServerError = (response: ServerResponse, message?: string) => {
-    response.statusCode = HttpResponseCode.INTERNAL_SERVER_ERROR
-    response.end(message || "Internal Server Error")
-}
-
-const handleBadRequestError = (response: ServerResponse, message?: string) => {
-    response.statusCode = HttpResponseCode.BAD_REQUEST
-    response.end(message || "User Server Error")
-}
-
-const handleNotFoundError = (response: ServerResponse, message?: string) => {
-    response.statusCode = HttpResponseCode.NOT_FOUND
-    response.end(message || "404 Not Found")
+const handleError = (response: ServerResponse, message: string, statusCode: HttpResponseCode) => {
+    response.statusCode = statusCode
+    response.setHeader("Content-Type", "application/json")
+    response.end(JSON.stringify({message}))
 }
 
 export const Server = () => {
@@ -47,7 +38,7 @@ export const Server = () => {
     };
     const server = http.createServer(async (request: IncomingMessage, response: ServerResponse) => {
         request.on('error', () => {
-            handleServerError(response);
+            handleError(response, "Internal Server Error", HttpResponseCode.INTERNAL_SERVER_ERROR)
         })
         try {
             const method = ensureExists(request.method, () => `Can't handle request without method url: ${request.url}`)
@@ -71,16 +62,15 @@ export const Server = () => {
             response.statusCode = result.code || HttpResponseCode.OK
             response.setHeader("Content-Type", "application/json")
             response.end(JSON.stringify(result.body))
-            response.end()
         } catch (e: any) {
             const message = e instanceof Error ? e.message : 'Unknown Error'
             message && console.log(message)
             if (e instanceof NotFoundError) {
-                handleNotFoundError(response, message)
-            } else if(e instanceof RequestParseError) {
-                handleBadRequestError(response, message)
+                handleError(response, message || "404 Not Found", HttpResponseCode.NOT_FOUND)
+            } else if (e instanceof RequestParseError) {
+                handleError(response, message || "Bad request", HttpResponseCode.BAD_REQUEST)
             } else {
-                handleServerError(response, message)
+                handleError(response, message || "Internal Server Error", HttpResponseCode.INTERNAL_SERVER_ERROR)
             }
         }
     })
