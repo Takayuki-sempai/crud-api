@@ -1,8 +1,9 @@
 import {HandlerResponse, HttpResponseCode, PostHandler, UrlHandler} from "../server/types.js";
 import {toUserMode} from "../model/users.js";
 import {User} from "../model/types.js";
-import {InternalError, NotFoundError} from "../error/errors.js";
+import {InternalError, NotFoundError, RequestParseError} from "../error/errors.js";
 import {createOkResponse, createResponse} from "../server/response.js";
+import {validate} from "uuid";
 
 const users: User[] = []
 
@@ -14,6 +15,9 @@ export const getUserById: UrlHandler = async (params: Map<string, string>): Prom
     const userId = params.get("userId")
     if(!userId) {
         throw new InternalError("Param userId not found")
+    }
+    if(!validate(userId)) {
+        throw new RequestParseError("UserId id not uuid type")
     }
     const foundUser = users.find(user => user.id === userId)
     if(!foundUser) {
