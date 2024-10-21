@@ -4,7 +4,7 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["ESNext"],
     "module": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "nodeNext",
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
@@ -16,6 +16,7 @@
     "sourceMap": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "target": "ESNext"
-  },
+    "target": "ESNext",
+    "allowImportingTsExtensions": true
+  }
 }
