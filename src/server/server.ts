@@ -2,6 +2,7 @@ import * as http from "node:http";
 import {IncomingMessage, ServerResponse} from "http";
 import {ensureExists} from "../util/utils.js";
 import {PostHandler, UrlHandler} from "./types.js";
+import {ValueNotExistsError} from "../error/errors.js";
 
 type Route = {
     testUrl: RegExp,
@@ -22,12 +23,12 @@ const getBody = (request: IncomingMessage): Promise<object> => {
     });
 }
 
-const handleServerError = (response: ServerResponse)=> {
+const handleServerError = (response: ServerResponse, message?: string) => {
     response.statusCode = 500
-    response.end("Internal Server Error")
+    response.end(message || "Internal Server Error")
 }
 
-const handleNotFoundError = (response: ServerResponse)=> {
+const handleNotFoundError = (response: ServerResponse) => {
     response.statusCode = 404
     response.end("404 Not Found")
 }
@@ -59,18 +60,18 @@ export const Server = () => {
                     resultParams.set(paramName, execResult[index + 1])
                 })
             }
-            try {
-                const result = await route.handler(request, response, resultParams)
-                response.setHeader("Content-Type", "application/json")
-                response.end(JSON.stringify(result))
-            } catch {
-                handleServerError(response)
-            }
+            const result = await route.handler(request, response, resultParams)
+            response.setHeader("Content-Type", "application/json")
+            response.end(JSON.stringify(result))
             response.end()
         } catch (e: any) {
             const message = e instanceof Error ? e.message : 'Unknown Error'
             message && console.log(message)
-            handleNotFoundError(response)
+            if (e instanceof ValueNotExistsError) {
+                handleNotFoundError(response)
+            } else {
+                handleServerError(response, message)
+            }
         }
     })
 
