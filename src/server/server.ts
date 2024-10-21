@@ -1,8 +1,8 @@
 import * as http from "node:http";
 import {IncomingMessage, ServerResponse} from "http";
 import {ensureExists} from "../util/utils.js";
-import {PostHandler, UrlHandler} from "./types.js";
-import {RequestParseError, NotFoundError} from "../error/errors.js";
+import {HttpResponseCode, PostHandler, UrlHandler} from "./types.js";
+import {NotFoundError, RequestParseError} from "../error/errors.js";
 
 type Route = {
     testUrl: RegExp,
@@ -24,17 +24,17 @@ const getBody = (request: IncomingMessage): Promise<object> => {
 }
 
 const handleServerError = (response: ServerResponse, message?: string) => {
-    response.statusCode = 500
+    response.statusCode = HttpResponseCode.INTERNAL_SERVER_ERROR
     response.end(message || "Internal Server Error")
 }
 
-const handleUserError = (response: ServerResponse, message?: string) => {
-    response.statusCode = 400
+const handleBadRequestError = (response: ServerResponse, message?: string) => {
+    response.statusCode = HttpResponseCode.BAD_REQUEST
     response.end(message || "User Server Error")
 }
 
 const handleNotFoundError = (response: ServerResponse, message?: string) => {
-    response.statusCode = 404
+    response.statusCode = HttpResponseCode.NOT_FOUND
     response.end(message || "404 Not Found")
 }
 
@@ -65,9 +65,10 @@ export const Server = () => {
                     resultParams.set(paramName, execResult[index + 1])
                 })
             }
-            const result = await route.handler(request, response, resultParams)
+            const result = await route.handler(resultParams, request, response)
+            response.statusCode = result.code || HttpResponseCode.OK
             response.setHeader("Content-Type", "application/json")
-            response.end(JSON.stringify(result))
+            response.end(JSON.stringify(result.body))
             response.end()
         } catch (e: any) {
             const message = e instanceof Error ? e.message : 'Unknown Error'
@@ -75,7 +76,7 @@ export const Server = () => {
             if (e instanceof NotFoundError) {
                 handleNotFoundError(response, message)
             } else if(e instanceof RequestParseError) {
-                handleUserError(response, message)
+                handleBadRequestError(response, message)
             } else {
                 handleServerError(response, message)
             }
@@ -94,8 +95,8 @@ export const Server = () => {
         methodRoutes["GET"].push(prepareRoute(url, handler))
     }
     const post = (url: string, handler: PostHandler) => {
-        const handlerWithBody = async (request: IncomingMessage, response: ServerResponse, params: Map<string, string>) =>
-            handler(request, response, params, await getBody(request))
+        const handlerWithBody = async (params: Map<string, string>, request: IncomingMessage, response: ServerResponse) =>
+            handler(await getBody(request), params, request, response)
         methodRoutes["POST"].push(prepareRoute(url, handlerWithBody))
     }
 

@@ -1,16 +1,16 @@
-import {IncomingMessage, ServerResponse} from "http";
-import {HandlerResponse, PostHandler, UrlHandler} from "../server/types.js";
+import {HandlerResponse, HttpResponseCode, PostHandler, UrlHandler} from "../server/types.js";
 import {toUserMode} from "../model/users.js";
 import {User} from "../model/types.js";
 import {InternalError, NotFoundError} from "../error/errors.js";
+import {createOkResponse, createResponse} from "../server/response.js";
 
 const users: User[] = []
 
-export const getAllUsers: UrlHandler = async (_request: IncomingMessage, _response: ServerResponse, _params: Map<string, string>): HandlerResponse => {
-   return users
+export const getAllUsers: UrlHandler = async (_: Map<string, string>): Promise<HandlerResponse> => {
+   return createOkResponse(users)
 }
 
-export const getUserById: UrlHandler = async (_request: IncomingMessage, _response: ServerResponse, params: Map<string, string>): HandlerResponse => {
+export const getUserById: UrlHandler = async (params: Map<string, string>): Promise<HandlerResponse> => {
     const userId = params.get("userId")
     if(!userId) {
         throw new InternalError("Param userId not found")
@@ -19,12 +19,11 @@ export const getUserById: UrlHandler = async (_request: IncomingMessage, _respon
     if(!foundUser) {
         throw new NotFoundError(`User with id: ${userId} not found`)
     }
-    return foundUser
+    return createOkResponse(foundUser)
 }
 
-export const addUser: PostHandler = async (_request: IncomingMessage, response: ServerResponse, _params: Map<string, string>, body: object): HandlerResponse => {
+export const addUser: PostHandler = async (body: object): Promise<HandlerResponse> => {
     const newUser = toUserMode(body)
     users.push(newUser)
-    response.statusCode = 201
-    return newUser
+    return createResponse(newUser, HttpResponseCode.CREATED)
 }
