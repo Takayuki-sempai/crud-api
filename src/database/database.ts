@@ -15,9 +15,14 @@ export const UsersDatabase = () => {
         users.set(user.id, user)
     }
 
+    const removeUser = (userId: string): boolean => {
+        return users.delete(userId)
+    }
+
     return {
         getAllUsers,
         findUser,
-        saveUser
+        saveUser,
+        removeUser
     }
 }

@@ -48,10 +48,20 @@ export const UsersController = (db: UserDatabase) => {
         return createResponse(newUser, HttpResponseCode.CREATED)
     }
 
+    const removeUser: UrlHandler = async (params: Map<string, string>): Promise<HandlerResponse> => {
+        const userId = ensureUserId(params)
+        const isRemoved = db.removeUser(userId)
+        if (!isRemoved) {
+            throw new NotFoundError(`User with id: ${userId} not found`)
+        }
+        return createResponse({ message: "User successfully deleted" }, HttpResponseCode.NO_CONTENT)
+    }
+
     return {
         getAllUsers,
         getUserById,
         addUser,
-        changeUser
+        changeUser,
+        removeUser
     }
 }
