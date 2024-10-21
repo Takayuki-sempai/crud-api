@@ -40,8 +40,8 @@ const handleNotFoundError = (response: ServerResponse, message?: string) => {
 
 export const Server = () => {
     const methodRoutes = {
-        "GET": [] as Route[],
-        "POST": [] as Route[],
+        GET: [] as Route[],
+        POST: [] as Route[],
     };
     const server = http.createServer(async (request: IncomingMessage, response: ServerResponse) => {
         request.on('error', () => {
