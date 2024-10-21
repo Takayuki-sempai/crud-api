@@ -6,11 +6,12 @@
     "node": ">=22.9.0"
   },
   "type": "module",
-  "main": "app.ts",
+  "main": "src/app.ts",
   "scripts": {
-    "start:dev": "nodemon --exec node --loader ts-node/esm app.ts",
-    "start:prod": "tsk && webpack --module=production && node dist/app.min",
-    "format": "prettier --write \"src/**/*.ts\""
+    "startyes:dev": "nodemon --exec node --loader ts-node/esm src/app.ts",
+    "start:prod": "tsc && webpack --mode=production && node dist/app.min",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,10 @@
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "webpack": "^5.95.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
   }
 }

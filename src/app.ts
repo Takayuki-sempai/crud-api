@@ -1,7 +1,7 @@
-import {Server} from "./src/server/server.ts";
-import {ensureNumber} from "./src/util/utils.js";
-import {UsersController} from "./src/controller/users.js";
-import {UsersDatabase} from "./src/database/database.js";
+import {Server} from "./server/server.js";
+import {ensureNumber} from "./util/utils.js";
+import {UsersController} from "./controller/users.js";
+import {UsersDatabase} from "./database/database.js";
 
 const server = Server()
 const database = UsersDatabase()

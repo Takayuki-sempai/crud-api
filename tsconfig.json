@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": "src/app.ts",
     "forceConsistentCasingInFileNames": true,
     "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "nodeNext",
+    "module": "ESNEXT",
+    "moduleResolution": "Node",
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
@@ -17,6 +17,5 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "target": "ESNext",
-    "allowImportingTsExtensions": true
   }
 }
