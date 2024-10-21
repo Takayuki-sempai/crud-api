@@ -2,7 +2,7 @@ import * as http from "node:http";
 import {IncomingMessage, ServerResponse} from "http";
 import {ensureExists} from "../util/utils.js";
 import {PostHandler, UrlHandler} from "./types.js";
-import {ValueNotExistsError} from "../error/errors.js";
+import {RequestParseError, NotFoundError} from "../error/errors.js";
 
 type Route = {
     testUrl: RegExp,
@@ -28,9 +28,14 @@ const handleServerError = (response: ServerResponse, message?: string) => {
     response.end(message || "Internal Server Error")
 }
 
-const handleNotFoundError = (response: ServerResponse) => {
+const handleUserError = (response: ServerResponse, message?: string) => {
+    response.statusCode = 400
+    response.end(message || "User Server Error")
+}
+
+const handleNotFoundError = (response: ServerResponse, message?: string) => {
     response.statusCode = 404
-    response.end("404 Not Found")
+    response.end(message || "404 Not Found")
 }
 
 export const Server = () => {
@@ -67,8 +72,10 @@ export const Server = () => {
         } catch (e: any) {
             const message = e instanceof Error ? e.message : 'Unknown Error'
             message && console.log(message)
-            if (e instanceof ValueNotExistsError) {
-                handleNotFoundError(response)
+            if (e instanceof NotFoundError) {
+                handleNotFoundError(response, message)
+            } else if(e instanceof RequestParseError) {
+                handleUserError(response, message)
             } else {
                 handleServerError(response, message)
             }

@@ -1,8 +1,8 @@
-import {ValueNotExistsError} from "../error/errors.js";
+import {NotFoundError} from "../error/errors.js";
 
 const ensureExists = <T>(value: T | undefined | null, msgGen?: () => string): T => {
     if (value === undefined || value === null) {
-        throw new ValueNotExistsError(msgGen?.())
+        throw new NotFoundError(msgGen?.())
     }
     return value
 }
