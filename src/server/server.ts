@@ -1,9 +1,7 @@
 import * as http from "node:http";
 import {IncomingMessage, ServerResponse} from "http";
-import {ensureExists} from "./util/utils.js";
-
-type UrlHandler = (request: IncomingMessage, response: ServerResponse, params: Map<string, string>) => Promise<void>
-type PostHandler = (request: IncomingMessage, response: ServerResponse, params: Map<string, string>, body: string) => Promise<void>
+import {ensureExists} from "../util/utils.js";
+import {PostHandler, UrlHandler} from "./types.js";
 
 type Route = {
     testUrl: RegExp,
@@ -11,12 +9,38 @@ type Route = {
     handler: UrlHandler,
 }
 
-const Server = () => {
+const getBody = (request: IncomingMessage): Promise<object> => {
+    return new Promise((resolve) => {
+        const bodyParts: Uint8Array[] = [];
+        let body;
+        request.on('data', (chunk) => {
+            bodyParts.push(chunk);
+        }).on('end', () => {
+            body = Buffer.concat(bodyParts).toString();
+            resolve(body ? JSON.parse(body) : {});
+        });
+    });
+}
+
+const handleServerError = (response: ServerResponse)=> {
+    response.statusCode = 500
+    response.end("Internal Server Error")
+}
+
+const handleNotFoundError = (response: ServerResponse)=> {
+    response.statusCode = 404
+    response.end("404 Not Found")
+}
+
+export const Server = () => {
     const methodRoutes = {
         "GET": [] as Route[],
         "POST": [] as Route[],
     };
     const server = http.createServer(async (request: IncomingMessage, response: ServerResponse) => {
+        request.on('error', () => {
+            handleServerError(response);
+        })
         try {
             const method = ensureExists(request.method, () => `Can't handle request without method url: ${request.url}`)
             const routes = ensureExists(
@@ -35,28 +59,20 @@ const Server = () => {
                     resultParams.set(paramName, execResult[index + 1])
                 })
             }
-            route.handler(request, response, resultParams)
+            try {
+                const result = await route.handler(request, response, resultParams)
+                response.setHeader("Content-Type", "application/json")
+                response.end(JSON.stringify(result))
+            } catch {
+                handleServerError(response)
+            }
             response.end()
         } catch (e: any) {
             const message = e instanceof Error ? e.message : 'Unknown Error'
             message && console.log(message)
-            response.statusCode = 404;
-            response.end()
+            handleNotFoundError(response)
         }
     })
-
-    const getBody = (request: IncomingMessage): Promise<string> => {
-        return new Promise((resolve) => {
-            const bodyParts: Uint8Array[] = [];
-            let body;
-            request.on('data', (chunk) => {
-                bodyParts.push(chunk);
-            }).on('end', () => {
-                body = Buffer.concat(bodyParts).toString();
-                resolve(body)
-            });
-        });
-    }
 
     const prepareRoute = (url: string, handler: UrlHandler): Route => {
         const regexp = new RegExp("({[^{}]*})", "g")
@@ -81,5 +97,3 @@ const Server = () => {
 
     return {get, post, listen}
 }
-
-export {Server}
