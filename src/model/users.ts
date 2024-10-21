@@ -44,8 +44,8 @@ const checkField = (obj: object, fieldName: string, fieldInfo: FieldInfo) => {
     }
 }
 
-export const toUserMode = (request: object): User => {
-    const user: User = new User()
+export const toUserModel = (request: object, userId?: string): User => {
+    const user: User = new User(userId)
     Object.entries(userRequiredFields).forEach(([fieldName, fieldInfo]) => {
         checkField(request, fieldName, fieldInfo);
         user[fieldName as keyof typeof user] = request[fieldName as keyof typeof request];

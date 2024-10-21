@@ -1,7 +1,7 @@
 import * as http from "node:http";
 import {IncomingMessage, ServerResponse} from "http";
 import {ensureExists} from "../util/utils.js";
-import {HttpResponseCode, PostHandler, UrlHandler} from "./types.js";
+import {HttpResponseCode, UrlBodyHandler, UrlHandler} from "./types.js";
 import {NotFoundError, RequestParseError} from "../error/errors.js";
 
 type Route = {
@@ -42,6 +42,8 @@ export const Server = () => {
     const methodRoutes = {
         GET: [] as Route[],
         POST: [] as Route[],
+        PUT: [] as Route[],
+        DELETE: [] as Route[],
     };
     const server = http.createServer(async (request: IncomingMessage, response: ServerResponse) => {
         request.on('error', () => {
@@ -51,7 +53,7 @@ export const Server = () => {
             const method = ensureExists(request.method, () => `Can't handle request without method url: ${request.url}`)
             const routes = ensureExists(
                 methodRoutes[method.toUpperCase() as keyof typeof methodRoutes],
-                () => `Can't handle request with method ${request.method}, url: ${request.url}`
+                () => `Server couldn't process method: ${request.method}, url: ${request.url}`
             )
             const url = ensureExists(request.url, () => `url not found in request ${request}`)
             const route = ensureExists(
@@ -91,18 +93,26 @@ export const Server = () => {
         return {testUrl, params, handler}
     }
 
+    const createFromBodyHandler = (handler: UrlBodyHandler): UrlHandler =>
+        async (params: Map<string, string>, request: IncomingMessage, response: ServerResponse) =>
+            handler(await getBody(request), params, request, response)
+
     const get = (url: string, handler: UrlHandler) => {
         methodRoutes["GET"].push(prepareRoute(url, handler))
     }
-    const post = (url: string, handler: PostHandler) => {
-        const handlerWithBody = async (params: Map<string, string>, request: IncomingMessage, response: ServerResponse) =>
-            handler(await getBody(request), params, request, response)
-        methodRoutes["POST"].push(prepareRoute(url, handlerWithBody))
+    const post = (url: string, handler: UrlBodyHandler) => {
+        methodRoutes["POST"].push(prepareRoute(url, createFromBodyHandler(handler)))
+    }
+    const put = (url: string, handler: UrlBodyHandler) => {
+        methodRoutes["PUT"].push(prepareRoute(url, createFromBodyHandler(handler)))
+    }
+    const del = (url: string, handler: UrlHandler) => {
+        methodRoutes["DELETE"].push(prepareRoute(url, handler))
     }
 
     const listen = (port: number, handler: () => void) => {
         server.listen(port, handler)
     }
 
-    return {get, post, listen}
+    return {get, post, put, del, listen}
 }

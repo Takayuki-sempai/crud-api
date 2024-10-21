@@ -6,7 +6,7 @@ export class User {
     age: number;
     hobbies: string[];
 
-    constructor() {
-        this.id = generateUuid();
+    constructor(id?: string) {
+        this.id = id || generateUuid();
     }
 }

@@ -15,4 +15,4 @@ export type HandlerResponse = {
 }
 
 export type UrlHandler = (params: Map<string, string>, request: IncomingMessage, response: ServerResponse) => Promise<HandlerResponse>;
-export type PostHandler = (body: object, params: Map<string, string>, request: IncomingMessage, response: ServerResponse) => Promise<HandlerResponse>;
+export type UrlBodyHandler = (body: object, params: Map<string, string>, request: IncomingMessage, response: ServerResponse) => Promise<HandlerResponse>;
