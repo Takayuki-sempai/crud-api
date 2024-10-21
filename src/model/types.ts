@@ -1,12 +1,12 @@
-import {v7 as generateUuid} from "uuid";
+import { v7 as generateUuid } from 'uuid';
 
 export class User {
-    id: string;
-    username: string;
-    age: number;
-    hobbies: string[];
+  id: string;
+  username: string;
+  age: number;
+  hobbies: string[];
 
-    constructor(id?: string) {
-        this.id = id || generateUuid();
-    }
+  constructor(id?: string) {
+    this.id = id || generateUuid();
+  }
 }

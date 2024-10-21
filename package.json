@@ -8,7 +8,9 @@
   "type": "module",
   "main": "app.ts",
   "scripts": {
-    "start": "nodemon --exec node --loader ts-node/esm app.ts"
+    "start:dev": "nodemon --exec node --loader ts-node/esm app.ts",
+    "start:prod": "tsk && webpack --module=production && node dist/app.min",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "repository": {
     "type": "git",
