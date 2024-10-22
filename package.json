@@ -1,0 +1,43 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "This repository for crud-api project",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "type": "module",
+  "main": "src/app.ts",
+  "scripts": {
+    "startyes:dev": "nodemon --exec node --loader ts-node/esm src/app.ts",
+    "start:prod": "tsc && webpack --mode=production && node dist/app.min",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Takayuki-sempai/file-manager.git"
+  },
+  "keywords": [
+    "nodejs",
+    "crudapi",
+    "Takayuki-sempai"
+  ],
+  "author": "Takayuki-sempai",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Takayuki-sempai/crud-api/issues"
+  },
+  "homepage": "https://github.com/Takayuki-sempai/crud-api#readme",
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9.13.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "uuid": "^10.0.0",
+    "webpack": "^5.95.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
+  }
+}
